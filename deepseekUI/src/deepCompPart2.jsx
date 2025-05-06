@@ -105,7 +105,7 @@ const NewsCalendar = () => {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Calendar Section - 70% width */}
           <div className="w-full lg:max-w-[70%]">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden backdrop-blur-sm bg-white/80">
+            <div className="rounded-2xl shadow-xl overflow-hidden backdrop-blur-sm bg-white/80">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <button 
