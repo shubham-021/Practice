@@ -1,0 +1,15 @@
+app.post , app.put , app.delete , app.get
+
+app.use() --> middleware
+
+app.use(express.json()) --> for parsing body <-- app.use(bodyParser)
+
+const bodyParser = require('body-parser') <-- importing body parser module , hepls in parsing req.body
+
+const express = require('express') --> intialisation of express
+
+app.get('/',(req,res)=>{
+	res.send() or res.json()
+})
+
+
