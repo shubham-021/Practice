@@ -1,9 +1,10 @@
 import express from "express"
-import router from "./router/user.js"
+import user_router from "./router/user.js"
 
 const app = express()
 
-app.use('/user' , router)
+app.use(express.json())
+app.use('/user' , user_router)
 
 const PORT = 8000
 app.listen(PORT , ()=>{

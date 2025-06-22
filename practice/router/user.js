@@ -6,4 +6,4 @@ router.get('/auth' , (req , res)=>{
     res.end("hi")
 })
 
-export default router
+export default router 
