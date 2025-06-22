@@ -1,4 +1,4 @@
-const express = require('express')
+import express from 'express'
 const bodyParser = require('body-parser')
 const adminRoute = require('./routes/admin.js')
 const userRoute = require('./routes/user.js')
