@@ -1,7 +1,7 @@
-const { Router } = require('express')
+import { Router } from 'express'
 const router = Router()
-const { User , Courses , PurchasedCourses } = require('../db')
-const userMiddleware = require('../middlewares/user.js')
+import { User , Courses , PurchasedCourses } from '../db/index.js'
+import {userMiddleware} from '../middlewares/user.js'
 
 router.post('/signUp',async(req,res)=>{
     //signup for users
@@ -30,16 +30,14 @@ router.post('/signUp',async(req,res)=>{
 router.get('/courses',userMiddleware,async (req,res)=>{
     //check if user exists or not 
     const allCourses = await Courses.find({})
-    const availableCourses = []
-    allCourses.map((e)=>{
-        availableCourses.push({
+    const availableCourses = allCourses.map((e)=> ({
             title : e.title,
             description : e.description,
             price : e.price,
             imageLink : e.imageLink,
             courseId : e.courseId
-        })
-    })
+    }))
+    
     res.json({
         availableCourses
     })
@@ -77,4 +75,4 @@ router.get('/purchasedCourses',userMiddleware,async(req,res)=>{
     })
 })
 
-module.exports = router
+export default router

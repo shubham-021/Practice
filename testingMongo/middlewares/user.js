@@ -1,4 +1,4 @@
-const { User } = require('../db')
+import { User } from "../db/index.js"
 
 async function userMiddleware(req,res,next){
     //validating users
@@ -15,4 +15,4 @@ async function userMiddleware(req,res,next){
     }
 }
 
-module.exports = userMiddleware
+export {userMiddleware}

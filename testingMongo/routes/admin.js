@@ -1,6 +1,6 @@
-const { Router } = require('express')
-const adminMiddleware = require("../middlewares/admin.js")
-const { Admin , Courses } = require('../db/index.js') //or you can do require('../db') <-- work only if db contains a single file
+import { Router } from "express"
+import {adminMiddleware} from '../middlewares/admin.js'
+import { Admin , Courses } from "../db/index.js" //or you can do require('../db') <-- work only if db contains a single file
 const router = Router()
 
 router.post('/signUp',async (req,res)=>{
@@ -75,7 +75,13 @@ router.get('/courses',adminMiddleware,async(req,res)=>{
     let adminId = admin._id
 
     let allCourses = await Courses.find(adminId)
-    let sendCourseDetails = []
+    let sendCourseDetails = allCourses.forEach(element => {({
+            title : element.title,
+            description : element.description,
+            price : element.price,
+            imageLink : element.imageLink
+        })
+    });
     allCourses.forEach(element => {
         sendCourseDetails.push({
             title : element.title,
@@ -89,4 +95,4 @@ router.get('/courses',adminMiddleware,async(req,res)=>{
     })
 })
 
-module.exports = router ; 
+export default router ; 

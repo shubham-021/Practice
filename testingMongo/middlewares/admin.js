@@ -1,4 +1,4 @@
-const { Admin } = require('../db')
+import { Admin } from "../db/index.js"
 
 async function adminMiddleware(req,res,next) {
     //validating admin
@@ -15,4 +15,4 @@ async function adminMiddleware(req,res,next) {
     }
 }
 
-module.exports = adminMiddleware
+export {adminMiddleware}

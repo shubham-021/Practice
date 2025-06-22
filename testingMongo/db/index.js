@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+import { mongoose } from 'mongoose'
 
 mongoose.connect('mongodb+srv://sh7bh:Sh7bham007%40@cluster0.okmep.mongodb.net/')
 
@@ -32,9 +32,4 @@ const User = mongoose.model('User' , userSchema)
 const Courses = mongoose.model('Courses' , courseSchema)
 const PurchasedCourses = mongoose.model('PurchasedCourses' , purchasedSchema)
 
-module.exports = {
-    Admin,
-    User,
-    Courses,
-    PurchasedCourses
-}
+export { Admin , User , Courses , PurchasedCourses}

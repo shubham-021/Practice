@@ -1,7 +1,7 @@
 import express from 'express'
-const bodyParser = require('body-parser')
-const adminRoute = require('./routes/admin.js')
-const userRoute = require('./routes/user.js')
+import bodyParser from 'body-parser'
+import adminRoute from './routes/admin.js'
+import userRoute from './routes/user.js'
 const app = express()
 
 app.use(bodyParser.json())
