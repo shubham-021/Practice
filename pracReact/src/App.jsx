@@ -29,6 +29,7 @@ function App(){
     <input onChange={(e)=>{setInputValue(e.target.value)}} type="text" />
     </>
   )
+
 }
 
 
