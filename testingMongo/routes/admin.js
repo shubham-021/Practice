@@ -75,21 +75,13 @@ router.get('/courses',adminMiddleware,async(req,res)=>{
     let adminId = admin._id
 
     let allCourses = await Courses.find(adminId)
-    let sendCourseDetails = allCourses.forEach(element => {({
+    let sendCourseDetails = allCourses.map((element) => ({
             title : element.title,
             description : element.description,
             price : element.price,
             imageLink : element.imageLink
-        })
-    });
-    allCourses.forEach(element => {
-        sendCourseDetails.push({
-            title : element.title,
-            description : element.description,
-            price : element.price,
-            imageLink : element.imageLink
-        })
-    });
+    }));
+    
     res.json({
         availableCourses : sendCourseDetails
     })

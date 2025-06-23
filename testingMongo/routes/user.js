@@ -65,10 +65,7 @@ router.get('/purchasedCourses',userMiddleware,async(req,res)=>{
     //returns all purchased courses
     let username = req.headers.username
     let allPurchasedCourses = await PurchasedCourses.find({username})
-    let coursesName = []
-    allPurchasedCourses.map((e)=>{
-        coursesName.push(e.title)
-    })
+    let coursesName = allPurchasedCourses.map((e)=>({title : e.title}))
 
     res.json({
         myCourses : coursesName
