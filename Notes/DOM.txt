@@ -1,7 +1,8 @@
 "The DOM, or Document Object Model, is like a bridge between web pages and programming languages. When a browser loads a webpage, it creates a structured representation of that page called the DOM. Think of it as a tree-like structure where each part of the webpage (like paragraphs, headings, images, etc.) becomes an object that can be manipulated.
 For example, when you use JavaScript to change something on a webpage - like making text appear or disappear when you click a button - you're actually modifying the DOM, not the original HTML file.
 The DOM gives developers a way to access and change a webpage's content, structure, and style dynamically after it's loaded. It's what makes interactive websites possible, allowing elements to respond to user actions without requiring the page to reload."
-If they need a more concrete example, you could add:
+
+A more concrete example
 "To visualize this, imagine a simple HTML page with a button and a paragraph. When you click the button and the paragraph changes color, that's JavaScript accessing the paragraph element through the DOM and modifying its properties. Without the DOM, websites would be static documents instead of the interactive applications we use today."
 
 
