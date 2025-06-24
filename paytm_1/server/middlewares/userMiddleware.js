@@ -1,21 +1,22 @@
 import User from "../db.js"
 
 
-async function find_userName(username){
-    const user = await User.findOne({username})
+async function find_userName(firstName , lastName){
+    const user = await User.findOne({firstName , lastName})
     return user === null
 }
 
 
 async function userMiddleware(req,res,next){
-    const username = req.body.username
-    const find = await find_userName(username)
+    const firstname = req.body.firstname
+    const lastname = req.body.lastname
+    const find = await find_userName(firstname,lastname)
     if(find == true){
-        next()
-    }else{
         res.json({
-            respond : "Username exists"
+            respond : "User does not exists. SignUp first"
         })
+    }else{
+        next()
     }
 }
 
