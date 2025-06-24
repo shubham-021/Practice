@@ -1,9 +1,11 @@
 import express from "express"
-import userRouter from "./routes/user_router.js"
+import cors from "cors"
+import mainRouter from "./routes/index.js"
 
 const app = express()
+app.use(cors())
 app.use(express.json())
-app.use('/api/v1/user', userRouter)
+app.use('/api/v1', mainRouter)
 
 app.listen(3000 , ()=>{
     console.log("Server is all ears <3")

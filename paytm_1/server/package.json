@@ -11,7 +11,9 @@
   "description": "",
   "type": "module",
   "dependencies": {
+    "cors": "^2.8.5",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.16.0"
+    "mongoose": "^8.16.0",
+    "zod": "^3.25.67"
   }
 }

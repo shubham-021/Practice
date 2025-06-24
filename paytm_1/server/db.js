@@ -3,8 +3,9 @@ import mongoose from "mongoose";
 mongoose.connect("mongodb+srv://sh7bh:Sh7bham007%40@cluster0.okmep.mongodb.net/paytm")
 
 const userSchema = new mongoose.Schema({
-    firstName : String,
-    lastName : String,
+    username : String,
+    firstname : String,
+    lastname : String,
     password : String
 })
 
