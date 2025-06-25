@@ -1,4 +1,5 @@
 {
     "editor.fontLigatures": false,
-    "editor.fontFamily": "Cartograph CF"
+    "editor.fontFamily": "Cartograph CF",
+    "postman.settings.dotenv-detection-notification-visibility": false
 }

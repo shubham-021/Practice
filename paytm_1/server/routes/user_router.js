@@ -1,58 +1,46 @@
 import { Router } from "express"
 import jwt from "jsonwebtoken"
-import {user_exist , user_signin_validation} from "../middlewares/userMiddleware.js";
-import User from "../db.js";
-import * as z from 'zod/v4'
-
-const userSchema = z.object({
-    username : z.string(),
-    firstname : z.string(),
-    lastname : z.string(),
-    password : z.string(),
-})
+import {user_exist_signIn , user_signin_validation , user_exist_signUp , user_signup_validation} from "../middlewares/userMiddleware.js";
+import { User , Account } from "../db.js";
 
 const router = Router();
 const jwt_password = "0123456789"
 
-router.post('/signup' , async (req,res)=>{
-
-    const body = req.body
-    const {success} = userSchema.safeParse(body)
-
-    if(success){
+router.post('/signup' , user_signup_validation , user_exist_signUp, async (req,res)=>{
         try{
             const newUser = await User.create(body)
             res.status(201).json({
-                respond : "Signed Up",
+                message : "Signed Up",
                 User_id : newUser._id
             })
+
+            await Account.create({
+                userId : newUser._id,
+                balance : 1+Math.random()*1000
+            })
+
         }catch(err){
             res.json({
-                respond : "Some error occured.Please try after some time"
+                message : "Some error occured.Please try after some time"
             })
         }
-    }else{
-        res.json({
-            respond : "Incorrect input"
-        })
-    }
 })
 
-router.post('/signin' , user_signin_validation , user_exist , async (req,res)=>{
+router.post('/signin' , user_signin_validation , user_exist_signIn , async (req,res)=>{
     
     const user_id = req.user_id
 
     const token = jwt.sign({user_id} , jwt_password)
 
     try{
-        res.status(201).json({
-            respond : "Signed in",
+        res.status(201).cookie().json({
+            message : "Signed in",
             user_id,
             token
         })
     }catch(err){
         res.json({
-            respond : "Some error occured.Please try after some time"
+            message : "Some error occured.Please try after some time"
         })
     }
 })
@@ -73,16 +61,37 @@ router.put("/update" , async (req,res)=>{
             const user = jwt.verify(token , jwt_password)
             await User.findByIdAndUpdate(user.user_id , {$set: body})
             res.json({
-                respond : "Updated successfully."
+                message : "Updated successfully."
             })
         }
         catch(err){
-            res.json({respond : "Invalid user credentials"})
+            res.json({ message : "Invalid user credentials" })
         }
     }else{
-        res.json({respond:"Signin to update."})
+        res.json({ message:"Signin to update." })
     }
 })
+
+router.get("/bulk" , async (req,res)=>{
+    const filter = req.query.filter || ""
+
+    // const users = await User.find({
+    //     $or: [{firstname: filter},{lastname: filter}]
+    // })
+
+    const users = await User.find({
+        $or:[{firstname:{$regex : filter , $options : 'i'}},{lastname:{ $regex :filter , $options : 'i'}}]
+    })
+
+    res.json({
+        user : users.map((user)=>({
+            username : user.username,
+            firstname : user.firstname,
+            lastname : user.lastname,
+            userId : user._id
+        }))
+    })
+}) 
 
 
 export default router
