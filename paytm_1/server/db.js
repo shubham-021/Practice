@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import MONGO_DB_URI from "./config/mongo_uri.js"
 
-mongoose.connect("mongodb+srv://sh7bh:Sh7bham007%40@cluster0.okmep.mongodb.net/paytm")
+mongoose.connect(MONGO_DB_URI)
 
 const userSchema = new mongoose.Schema({
     username : {
