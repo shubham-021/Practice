@@ -1,8 +1,9 @@
 import { Client } from "pg";
+import NEON_DB_URI from "./config/neon_db";
 
 const client = new Client({
 //  connectionString : "postgresql://userrname:password@host/dbName"
-    connectionString : "postgresql://newsCollector_owner:npg_MqsbxmVw70XF@ep-lingering-fog-a1r274g0-pooler.ap-southeast-1.aws.neon.tech/newsCollector?sslmode=require&channel_binding=require"
+    connectionString : NEON_DB_URI
 })
 
 // or you can do this also:
