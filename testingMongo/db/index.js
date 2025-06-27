@@ -1,6 +1,7 @@
 import { mongoose } from 'mongoose'
+import Mongo_URI from '../config/mongo_uri'
 
-mongoose.connect('mongodb+srv://sh7bh:Sh7bham007%40@cluster0.okmep.mongodb.net/')
+mongoose.connect(Mongo_URI)
 
 const adminSchema = new mongoose.Schema({
     username : String,
