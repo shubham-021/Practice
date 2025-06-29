@@ -1,13 +1,15 @@
 import { Router } from "express"
 import jwt from "jsonwebtoken"
+import { JWT_PASS } from "../config.js";
 import {user_exist_signIn , user_signin_validation , user_exist_signUp , user_signup_validation} from "../middlewares/userMiddleware.js";
+import authMiddlware from "../middlewares/authMiddleware.js"
 import { User , Account } from "../db.js";
 
 const router = Router();
-const jwt_password = "0123456789"
 
 router.post('/signup' , user_signup_validation , user_exist_signUp, async (req,res)=>{
         try{
+            const body = req.body
             const newUser = await User.create(body)
             res.status(201).json({
                 message : "Signed Up",
@@ -21,21 +23,22 @@ router.post('/signup' , user_signup_validation , user_exist_signUp, async (req,r
 
         }catch(err){
             res.json({
-                message : "Some error occured.Please try after some time"
+                message : "Some error occured.Please try after some time",
+                error : err?.message || err
             })
         }
 })
 
 router.post('/signin' , user_signin_validation , user_exist_signIn , async (req,res)=>{
     
-    const user_id = req.user_id
+    const userId = req.user_id
 
-    const token = jwt.sign({user_id} , jwt_password)
+    const token = jwt.sign({userId} , JWT_PASS)
 
     try{
-        res.status(201).cookie().json({
+        res.status(201).json({
             message : "Signed in",
-            user_id,
+            userId,
             token
         })
     }catch(err){
@@ -52,27 +55,20 @@ router.post('/signin' , user_signin_validation , user_exist_signIn , async (req,
 //     res.send("hi")
 // })
 
-router.put("/update" , async (req,res)=>{
-    const auth = req.headers.authorization
-    const body = req.body
-    if(auth && auth.startsWith("Bearer")){
-        const token = auth.split(' ')[1]
+router.put("/update" , authMiddlware , async (req,res)=>{
         try{
-            const user = jwt.verify(token , jwt_password)
-            await User.findByIdAndUpdate(user.user_id , {$set: body})
+            const body = req.body
+            await User.findByIdAndUpdate(req.userId , {$set: body})
             res.json({
                 message : "Updated successfully."
             })
         }
         catch(err){
-            res.json({ message : "Invalid user credentials" })
+            res.json({ message : "Some error occurred while updating" })
         }
-    }else{
-        res.json({ message:"Signin to update." })
-    }
 })
 
-router.get("/bulk" , async (req,res)=>{
+router.get("/bulk" , authMiddlware , async (req,res)=>{
     const filter = req.query.filter || ""
 
     // const users = await User.find({

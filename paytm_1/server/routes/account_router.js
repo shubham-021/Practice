@@ -1,22 +1,31 @@
 import { Router } from "express";
-import { Account } from "../db";
+import { Account } from "../db.js";
 import mongoose from "mongoose";
+import authMiddleware from "../middlewares/authMiddleware.js";
 
 const router = Router()
 
-//add auth middleware
-router.get('/balance' , async (req,res)=>{
-    const account = await Account.find({
-        userId : req.userId
-    })
+//add auth middleware -- done
+router.get('/balance' , authMiddleware , async (req,res)=>{
+    try{
+        // console.log(mongoose.isValidObjectId(req.userId))
+        const account = await Account.findOne({
+            userId : req.userId
+        })
 
-    res.json({
-        balance : account.balance
-    })
+        res.json({
+            balance : account.balance
+        })
+    }catch(err){
+        res.json({
+            message : "Some error occurred while finding balance.",
+            error : err?.message || err
+        })
+    }
 })
 
-//add auth middleware
-router.post("/transfer",async (req,res)=>{
+//add auth middleware -- done
+router.post("/transfer" , authMiddleware , async (req,res)=>{
     const session = await mongoose.startSession()
 
     session.startTransaction()
@@ -24,7 +33,7 @@ router.post("/transfer",async (req,res)=>{
     try{
         const {amount,to} = req.body
 
-        const account = await Account.find({userId:req.userId}).session(session)
+        const account = await Account.findOne({userId:req.userId}).session(session)
 
         if(!account || account.balance<amount){
             await session.abortTransaction()
@@ -33,7 +42,7 @@ router.post("/transfer",async (req,res)=>{
             })
         }
 
-        const toAccount = await Account.find({userId:to}).session(session)
+        const toAccount = await Account.findOne({userId:to}).session(session)
 
         if(!toAccount){
             await session.abortTransaction()

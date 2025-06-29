@@ -1,4 +1,4 @@
-import User from "../db.js"
+import { User } from "../db.js"
 import * as z from "zod/v4"
 
 const user_signIn_schema = z.object({
@@ -15,27 +15,41 @@ const userSchema = z.object({
 
 async function user_exist_signUp(req,res,next){
     const username = req.body.username
-    const user = await User.findOne({username})
-    if(user){
+    try{
+        const user = await User.findOne({username})
+        if(user){
+            res.json({
+                message : "User already exists. Please login to continue"
+            })
+        }else{
+            // req.user_id = user._id --> why ?? , not required here
+            next()
+        }
+    }catch(err){
         res.json({
-            message : "User already exists. Please login to continue"
+            message : "Some error occured",
+            // error : err
+            error : err?.message || err
         })
-    }else{
-        req.user_id = user._id
-        next()
     }
 }
 
 async function user_exist_signIn(req,res,next){
     const username = req.body.username
-    const user = await User.findOne({username})
-    if(!user){
+    try{
+        const user = await User.findOne({username})
+        if(!user){
+            res.json({
+                message : "User does not exists. SignUp first"
+            })
+        }else{
+            req.user_id = user._id
+            next()
+        }
+    }catch(err){
         res.json({
-            message : "User does not exists. SignUp first"
+            message : "Some error occured"
         })
-    }else{
-        req.user_id = user._id
-        next()
     }
 }
 
