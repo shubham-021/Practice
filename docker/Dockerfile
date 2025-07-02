@@ -30,10 +30,10 @@ COPY tsconfig* .
 
 RUN npm install
 RUN npm install typescript
-RUN npm run build
 RUN npx prisma generate
 
 COPY . .
+RUN npm run build
 
 EXPOSE 3000
 
