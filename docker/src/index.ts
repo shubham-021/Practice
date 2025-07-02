@@ -9,6 +9,8 @@ const client = new PrismaClient()
 
 
 app.post('/signup' , async (req , res) => {
+    console.log("Hi")
+
     const body = req.body
     try{
         const ret = await client.user.create({
