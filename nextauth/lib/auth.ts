@@ -30,5 +30,13 @@ export const NEXT_AUTH = {
         })
     ],
     secret : process.env.NEXTAUTH_SECRET,
-    callbacks : {}
+    callbacks : {
+        session : ({session,token,user}:any)=>{
+            console.log(session)
+            if(session && session.user){
+                session.user.id = token.sub // sub==id --> ('do search')
+            }
+            return session
+        }
+    }
 }
