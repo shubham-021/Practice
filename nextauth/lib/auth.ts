@@ -35,6 +35,7 @@ export const NEXT_AUTH = {
             console.log(session)
             if(session && session.user){
                 session.user.id = token.sub // sub==id --> ('do search')
+                // session usually do not contain id , so we injected the id from token
             }
             return session
         }
