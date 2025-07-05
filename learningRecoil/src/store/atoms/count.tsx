@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
 
 
 // Problem: Recoil 0.7.7 is NOT compatible with React 19
@@ -16,5 +16,13 @@ import { atom } from "recoil";
 export const countAtom = atom({
     key: "countAtom",
     default: 0
+})
+
+export const evenSelector = selector({
+    key : "evenSelector",
+    get : ({get}) => {
+        const count = get(countAtom)
+        return count%2
+    }
 })
 

@@ -1,6 +1,6 @@
 interface ButtonProps {
   name: string;
-  fn: React.MouseEventHandler<HTMLDivElement>;
+  fn: ()=>void;
 }
 
 
