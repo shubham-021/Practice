@@ -1,14 +1,25 @@
-import { Hono } from 'hono'
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
+import { Hono } from 'hono'
 import { decode , sign , verify } from 'hono/jwt'
+// import { getPrisma } from '../lib/prisma'
+// import { prisma_type } from '../lib/prisma'
 
 const app = new Hono<{
   Bindings: {
     DATABASE_URL : string,
     JWT_SECRET : string
   }
+  // Variables : {
+  //   prisma : prisma_type
+  // }
 }>()
+
+// app.use('*' , async(c,next) => {
+//   const prisma = getPrisma(c.env.DATABASE_URL)
+//   c.set('prisma' , prisma)
+//   await next() 
+// })
 
 app.use('/api/v1/blog/*' , async(c,next) => {
   const header = c.req.header("authorization") || ""
@@ -16,7 +27,7 @@ app.use('/api/v1/blog/*' , async(c,next) => {
 
   const response = await verify(token , c.env.JWT_SECRET)
   if(response.id){
-    next()
+    await next()
   }else{
     c.status(403)
     return c.json({ error : "unauthorized" })
@@ -25,7 +36,7 @@ app.use('/api/v1/blog/*' , async(c,next) => {
 
 app.post('/api/v1/signup', async (c) => {
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
+    datasourceUrl : c.env.DATABASE_URL
   }).$extends(withAccelerate())
 
   const body = await c.req.json()
@@ -67,22 +78,22 @@ app.post('/api/v1/signup', async (c) => {
 
 app.post('/api/v1/signin', async (c) => {
   const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
+    datasourceUrl : c.env.DATABASE_URL
   }).$extends(withAccelerate())
 
   const body = await c.req.json()
 
   try{
-    const verify_if_exists = await prisma.user.findUnique({
+    const user_exists = await prisma.user.findUnique({
       where: {
         email : body.email,
         password : body.password
       }
     })
 
-    if(verify_if_exists){
+    if(user_exists){
       const secret = c.env.JWT_SECRET
-      const token = await sign({id : verify_if_exists.id}, secret)
+      const token = await sign({id : user_exists.id}, secret)
       return c.json({
         jwt : token
       })
