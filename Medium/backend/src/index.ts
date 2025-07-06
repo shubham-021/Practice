@@ -38,6 +38,12 @@ const app = new Hono<{
   }
 }>()
 
+// app.use('*' , async(c,next)=>{
+//   const prisma = getPrisma(c.env.DATABASE_URL)
+//   c.set('prisma' , prisma)
+//   await next()
+// })
+
 app.use('*' , async(c,next) => {
   const prisma = getPrisma(c.env.DATABASE_URL)
   c.set('prisma' , prisma)
