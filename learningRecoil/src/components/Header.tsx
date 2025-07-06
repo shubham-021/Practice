@@ -4,6 +4,9 @@ import { evenSelector } from "../store/atoms/count"
 
 export function Header(){
     // const count = useRecoilValue(countAtom)
+    // const isEven = useMemo(()=>{
+    //     return count%2==0
+    // },[count])
     const isEven = useRecoilValue(evenSelector)
     return(
         <div>
