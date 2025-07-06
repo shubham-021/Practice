@@ -1,3 +1,5 @@
+// should read lib/prisma for better understanding of prisma singleton setup
+
 import { PrismaClient } from '@prisma/client/edge'
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { Hono } from 'hono'
@@ -5,20 +7,50 @@ import { decode , sign , verify } from 'hono/jwt'
 // import { getPrisma } from '../lib/prisma'
 // import { prisma_type } from '../lib/prisma'
 
+function createClient(database_url : string){
+  const prisma = new PrismaClient({
+    datasourceUrl : database_url
+  }).$extends(withAccelerate())
+
+  return prisma
+}
+
+type prisma_type = ReturnType<typeof createClient>
+
+let globalPrisma: prisma_type | null = null
+
+function getPrisma(databaseUrl: string) {
+  if (!globalPrisma) {
+    globalPrisma = new PrismaClient({
+      datasourceUrl: databaseUrl,
+    }).$extends(withAccelerate())
+  }
+  return globalPrisma
+}
+
 const app = new Hono<{
   Bindings: {
     DATABASE_URL : string,
     JWT_SECRET : string
   }
-  // Variables : {
-  //   prisma : prisma_type
-  // }
+  Variables : {
+    prisma : prisma_type
+  }
 }>()
 
-// app.use('*' , async(c,next) => {
-//   const prisma = getPrisma(c.env.DATABASE_URL)
+app.use('*' , async(c,next) => {
+  const prisma = getPrisma(c.env.DATABASE_URL)
+  c.set('prisma' , prisma)
+  await next() 
+})
+
+// app.use('*' , async(c , next)=>{
+//   const prisma = new PrismaClient({
+//     datasourceUrl : c.env.DATABASE_URL
+//   }).$extends(withAccelerate())
+  
 //   c.set('prisma' , prisma)
-//   await next() 
+//   await next()
 // })
 
 app.use('/api/v1/blog/*' , async(c,next) => {
@@ -35,10 +67,11 @@ app.use('/api/v1/blog/*' , async(c,next) => {
 })
 
 app.post('/api/v1/signup', async (c) => {
-  const prisma = new PrismaClient({
-    datasourceUrl : c.env.DATABASE_URL
-  }).$extends(withAccelerate())
+  // const prisma = new PrismaClient({
+  //   datasourceUrl : c.env.DATABASE_URL
+  // }).$extends(withAccelerate())
 
+  const prisma = c.get('prisma')
   const body = await c.req.json()
   const email = body.email
   try{
