@@ -1,0 +1,73 @@
+**Use new instance per request setup
+
+Prisma with Accelerate is designed to handle connection pooling efficiently, so creating new instances is usually fine and much safer 
+in the Workers environment.
+
+
+
+**The Real Problem
+
+The issue is with the module-level variable globalPrisma in a V8 isolate environment. Here's what's happening:
+
+
+V8 Isolate Module State Issues
+
+Module Reloading: V8 isolates can reload modules between requests or isolate restarts. Your globalPrisma variable 
+might get reset to null unexpectedly.
+Isolate Lifecycle: When a new isolate spins up (which happens frequently in Cloudflare Workers), your module gets
+re-executed, and globalPrisma starts as null again.
+Accelerate Connection State: Prisma Accelerate maintains connection state that doesn't survive isolate restarts. 
+When your module reloads, the previous connection is lost.
+
+The Timing Issue
+
+When your middleware calls getPrisma():
+
+If it's a fresh isolate, globalPrisma is null
+A new client gets created with $extends(withAccelerate())
+The Accelerate connection needs time to establish
+But your route might execute before the connection is ready
+
+
+**Why Single File Works
+
+In a single file, everything executes in the same module context at the same time. The Prisma client creation and 
+usage happen synchronously within the same execution flow, so the Accelerate connection is established before you try to use it.
+
+The V8 Isolate Difference
+Unlike Node.js where modules stay loaded and variables persist, V8 isolates are more aggressive about:
+
+Garbage collecting unused modules
+Restarting isolates for memory management
+Losing module-level state between requests
+
+Your singleton pattern is correct, but V8 isolates don't guarantee that module-level variables will persist the way you expect them to.
+The globalPrisma variable can become null again even after being set, causing new client instances to be created when you don't expect it.
+This is why many Cloudflare Workers developers end up putting everything in one file - it avoids these module state persistence issues entirely.
+
+**Why you shouldn't use singleton setup in cloudflare environment
+
+Singleton setups in Cloudflare Workers create several serious problems:
+
+Isolate Unpredictability: Workers use an isolate-based architecture where your code might run in different isolates for different requests.
+Your singleton variable gets reset to null unpredictably, so you end up creating new instances anyway, defeating the singleton purpose entirely.
+Shared State Contamination: Multiple concurrent requests might share the same database connection, leading to overlapping transactions, race 
+conditions, and data corruption. One request's database operations can interfere with another's.
+
+Memory Accumulation: Connections that don't get properly cleaned up between requests pile up in memory. Since isolates can persist for a while,
+these leaked connections gradually consume available resources.
+
+Error State Persistence: If one request causes the singleton connection to enter an error state, subsequent requests inherit that broken connection.
+The error persists across multiple requests until the isolate is recycled.
+
+Debugging Nightmares: Inconsistent behavior makes issues extremely hard to reproduce and debug. Sometimes your singleton works, sometimes it doesn't, 
+depending on isolate lifecycle timing.
+
+Connection Pool Exhaustion: Database connections have limits. A singleton that doesn't properly manage its connection can exhaust the pool, causing 
+subsequent requests to fail with connection errors.
+
+Stale Connection Issues: Long-lived connections can become stale or timeout, but your singleton might keep trying to use them, leading to mysterious failures.
+
+Concurrency Violations: Database clients often aren't designed for concurrent use across multiple request contexts, leading to internal state corruption within the client itself.
+
+The fundamental issue is that Cloudflare Workers' execution model doesn't guarantee the persistence or isolation that traditional singleton patterns rely on.
