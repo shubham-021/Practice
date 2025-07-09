@@ -2,6 +2,7 @@
 import { Hono } from 'hono'
 import blogRouter from './routes/blog'
 import userRouter from './routes/user'
+import { cors } from 'hono/cors'
 // import { getPrisma } from '../lib/prisma'
 // import { prisma_type } from '../lib/prisma'
 
@@ -36,6 +37,7 @@ const app = new Hono<{
   // }
 }>()
 
+app.use('*', cors())
 // app.use('*' , async(c,next)=>{
 //   const prisma = getPrisma(c.env.DATABASE_URL)
 //   c.set('prisma' , prisma)

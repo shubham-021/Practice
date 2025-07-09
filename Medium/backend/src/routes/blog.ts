@@ -16,17 +16,23 @@ export const blogRouter = new Hono<{
 
 
 blogRouter.use('/*' , async(c,next) => {
-  const header = c.req.header("authorization") || ""
-  const token = header.split(" ")[1]
+  try{
+    const header = c.req.header("authorization") || ""
+    const token = header.split(" ")[1]
 
-  const response = await verify(token , c.env.JWT_SECRET)
-  if(response){
-    c.set('userId' , String(response.id))
-    await next()
-  }else{
-    c.status(403)
-    return c.json({ error : "unauthorized" })
-  }
+    const response = await verify(token , c.env.JWT_SECRET)
+    if(response){
+      c.set('userId' , String(response.id))
+      await next()
+    }else{
+      c.status(403)
+      return c.json({ error : "unauthorized" })
+    }
+  }catch(err){
+    return c.json({
+      message : "Authentication Invalid"
+    })
+  }  
 })
 
 blogRouter.post('/', async (c) => {
@@ -107,11 +113,11 @@ blogRouter.get('/bulk' , async(c) => {
     datasourceUrl : c.env.DATABASE_URL
   }).$extends(withAccelerate())
 
-  const id = c.get('userId')
-
   const blogs = await prisma.post.findMany({
-    where : {
-      authorId : id
+    select: {
+      id : true,
+      title : true,
+      content : true
     }
   })
 
